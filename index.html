@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMI Tracker Pro – Monitora il tuo peso, raggiungi i tuoi obiettivi</title>
+<meta name="description" content="L'app gratuita per tracciare il tuo BMI, monitorare il peso e raggiungere i tuoi obiettivi di salute. Scarica ora per Android.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #00E676;
+    --green-dark: #00C853;
+    --green-dim: rgba(0,230,118,0.12);
+    --bg: #0A0F0A;
+    --bg2: #0F160F;
+    --bg3: #141C14;
+    --surface: #1A231A;
+    --surface2: #202B20;
+    --text: #F0F7F0;
+    --text2: #9DB89D;
+    --text3: #5A755A;
+    --red: #FF5252;
+    --amber: #FFB300;
+    --blue: #40C4FF;
+    --radius: 16px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE TEXTURE ──────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── NAV ────────────────────────────── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10,15,10,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,230,118,0.08);
+  }
+
+  .nav-logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: -0.02em;
+  }
+
+  .nav-logo span { color: var(--text2); font-weight: 300; }
+
+  .nav-dl {
+    background: var(--green);
+    color: #0A0F0A;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 10px 22px;
+    border-radius: 100px;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .nav-dl:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,230,118,0.35); }
+
+  /* ─── HERO ───────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0,230,118,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green-dim);
+    border: 1px solid rgba(0,230,118,0.25);
+    color: var(--green);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 32px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero-badge::before { content: '●'; font-size: 0.5rem; animation: pulse 2s ease infinite; }
+
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--green);
+    position: relative;
+  }
+
+  h1 em::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--green), transparent);
+    border-radius: 2px;
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    color: var(--text2);
+    max-width: 520px;
+    margin: 0 auto 48px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--green);
+    color: #0A0F0A;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 16px 36px;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 32px rgba(0,230,118,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,230,118,0.45); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 16px 36px;
+    border-radius: 100px;
+    text-decoration: none;
+    border: 1px solid var(--surface2);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--green); background: var(--green-dim); }
+
+  .hero-note {
+    margin-top: 24px;
+    font-size: 0.8rem;
+    color: var(--text3);
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── STATS STRIP ────────────────────── */
+  .stats {
+    background: var(--surface);
+    border-top: 1px solid rgba(0,230,118,0.08);
+    border-bottom: 1px solid rgba(0,230,118,0.08);
+    padding: 40px 24px;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+
+  .stat-item {
+    flex: 1;
+    min-width: 160px;
+    max-width: 240px;
+    text-align: center;
+    padding: 20px;
+    border-right: 1px solid rgba(255,255,255,0.05);
+  }
+  .stat-item:last-child { border-right: none; }
+
+  .stat-number {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--green);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-label { font-size: 0.85rem; color: var(--text2); }
+
+  /* ─── SECTIONS ───────────────────────── */
+  section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 100px 24px;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.15;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .section-sub {
+    font-size: 1.05rem;
+    color: var(--text2);
+    max-width: 540px;
+    margin-bottom: 60px;
+  }
+
+  /* ─── FEATURE GRID ───────────────────── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--radius);
+    padding: 32px;
+    transition: border-color 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent, var(--green)), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .feature-card:hover { border-color: rgba(0,230,118,0.2); transform: translateY(-4px); }
+  .feature-card:hover::before { opacity: 1; }
+
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .feature-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+
+  .feature-desc {
+    font-size: 0.9rem;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+
+  /* ─── BIG FEATURE ────────────────────── */
+  .big-feature {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .big-feature.reverse { direction: rtl; }
+  .big-feature.reverse > * { direction: ltr; }
+
+  .big-feature-visual {
+    background: var(--surface);
+    border: 1px solid rgba(0,230,118,0.1);
+    border-radius: 24px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .big-feature-visual::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(0,230,118,0.08), transparent);
+  }
+
+  .bmi-gauge {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg3);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+
+  .bmi-num {
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: var(--green);
+    line-height: 1;
+  }
+
+  .bmi-info { flex: 1; }
+  .bmi-cat { font-size: 0.85rem; color: var(--text2); }
+  .bmi-label { font-size: 0.75rem; color: var(--text3); margin-top: 2px; }
+
+  .progress-bar-wrap { background: var(--bg3); border-radius: 12px; padding: 16px 20px; }
+  .progress-label { font-size: 0.8rem; color: var(--text2); margin-bottom: 10px; display: flex; justify-content: space-between; }
+  .progress-track { height: 8px; background: var(--bg); border-radius: 100px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--green-dark), var(--green)); width: 68%; }
+
+  .history-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+  }
+
+  .history-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-right: 10px; flex-shrink: 0; }
+  .history-date { color: var(--text2); }
+  .history-val { font-weight: 700; color: var(--green); }
+  .history-delta { color: var(--text3); font-size: 0.75rem; }
+
+  /* ─── HOW IT WORKS ───────────────────── */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2px;
+    background: rgba(255,255,255,0.04);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .step {
+    background: var(--bg);
+    padding: 40px 32px;
+    position: relative;
+  }
+
+  .step-num {
+    font-size: 4rem;
+    font-weight: 900;
+    color: rgba(0,230,118,0.08);
+    line-height: 1;
+    position: absolute;
+    top: 20px; right: 24px;
+  }
+
+  .step-icon { font-size: 1.8rem; margin-bottom: 16px; display: block; }
+  .step-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+  .step-desc { font-size: 0.875rem; color: var(--text2); line-height: 1.6; }
+
+  /* ─── BACKUP SECTION ─────────────────── */
+  .backup-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .backup-card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--radius);
+    padding: 28px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .backup-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    background: var(--green-dim);
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .backup-title { font-weight: 700; margin-bottom: 4px; font-size: 0.95rem; }
+  .backup-desc { font-size: 0.85rem; color: var(--text2); line-height: 1.5; }
+
+  /* ─── SUPPORT ────────────────────────── */
+  .support-section {
+    background: var(--surface);
+    border-top: 1px solid rgba(0,230,118,0.08);
+    border-bottom: 1px solid rgba(0,230,118,0.08);
+    text-align: center;
+    padding: 80px 24px;
+  }
+
+  .support-section .section-title { margin-bottom: 12px; }
+  .support-sub { color: var(--text2); max-width: 480px; margin: 0 auto 40px; }
+
+  .support-btns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-satispay {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #E8001C;
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 14px 32px;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-satispay:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,0,28,0.4); }
+
+  .btn-paypal {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #003087;
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 14px 32px;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-paypal:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,48,135,0.5); }
+
+  /* ─── CTA FINAL ──────────────────────── */
+  .cta-section {
+    text-align: center;
+    padding: 120px 24px;
+    position: relative;
+  }
+
+  .cta-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(0,230,118,0.07), transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-section .section-title { font-size: clamp(2.2rem, 5vw, 3.8rem); margin-bottom: 20px; }
+  .cta-section .section-sub { max-width: 460px; margin: 0 auto 48px; }
+
+  /* ─── FOOTER ─────────────────────────── */
+  footer {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--text3);
+    font-size: 0.82rem;
+  }
+
+  footer a { color: var(--text2); text-decoration: none; }
+  footer a:hover { color: var(--green); }
+
+  /* ─── DISCLAIMER BANNER ──────────────── */
+  .disclaimer {
+    background: rgba(255,179,0,0.06);
+    border: 1px solid rgba(255,179,0,0.15);
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-size: 0.82rem;
+    color: var(--text2);
+    max-width: 700px;
+    margin: 40px auto 0;
+    line-height: 1.6;
+  }
+
+  .disclaimer strong { color: var(--amber); }
+
+  /* ─── INSTALL GUIDE ──────────────────── */
+  .install-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 40px;
+    max-width: 560px;
+  }
+
+  .install-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 16px 20px;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .install-num {
+    background: var(--green);
+    color: #0A0F0A;
+    font-weight: 900;
+    font-size: 0.8rem;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .install-text { font-size: 0.9rem; color: var(--text2); line-height: 1.6; }
+  .install-text strong { color: var(--text); }
+
+  /* ─── RESPONSIVE ─────────────────────── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .big-feature { grid-template-columns: 1fr; gap: 40px; }
+    .big-feature.reverse { direction: ltr; }
+    section { padding: 70px 20px; }
+    .stat-item { min-width: 130px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-cta { flex-direction: column; align-items: center; }
+    .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+  }
+
+  /* ─── APP SHOWCASE ───────────────────── */
+  .showcase {
+    padding: 60px 24px 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  .showcase-wrap {
+    position: relative;
+    max-width: 700px;
+    width: 100%;
+  }
+
+  .showcase-img {
+    width: 100%;
+    border-radius: 24px;
+    display: block;
+    filter: drop-shadow(0 40px 80px rgba(0,230,118,0.18)) drop-shadow(0 0 60px rgba(0,0,0,0.6));
+    animation: floatImg 6s ease-in-out infinite;
+  }
+
+  @keyframes floatImg {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-12px); }
+  }
+
+  .showcase-glow {
+    position: absolute;
+    bottom: -40px; left: 50%;
+    transform: translateX(-50%);
+    width: 70%; height: 80px;
+    background: radial-gradient(ellipse, rgba(0,230,118,0.15), transparent 70%);
+    pointer-events: none;
+  }
+
+  .showcase-badge {
+    position: absolute;
+    top: 18px; right: -20px;
+    background: var(--green);
+    color: #0A0F0A;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 8px 16px;
+    border-radius: 100px;
+    box-shadow: 0 4px 20px rgba(0,230,118,0.4);
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+
+  @media (max-width: 768px) {
+    .showcase-badge { right: 0; top: 10px; font-size: 0.7rem; padding: 6px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">BMI Tracker <span>Pro</span></div>
+  <a href="#download" class="nav-dl">⬇ Scarica gratis</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge">Gratuito · Solo Android · Nessun abbonamento</div>
+  <h1>Il tuo peso.<br><em>Sotto controllo.</em></h1>
+  <p class="hero-sub">
+    Calcola il BMI, traccia i progressi nel tempo, imposta il tuo obiettivo e ricevi promemoria personalizzati. Tutto offline, tutto privato.
+  </p>
+  <div class="hero-cta">
+    <a href="#download" class="btn-primary">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v5h5.66V9h3.84L12 2z"/></svg>
+      Scarica l'APK
+    </a>
+    <a href="#funzionalita" class="btn-secondary">
+      Scopri le funzionalità →
+    </a>
+  </div>
+  <p class="hero-note">✓ Gratis per sempre &nbsp;·&nbsp; ✓ Nessun login &nbsp;·&nbsp; ✓ Nessuna pubblicità</p>
+</div>
+
+<!-- APP SHOWCASE -->
+<div class="showcase">
+  <div class="showcase-wrap">
+    <img src="screenshot.jpg" alt="BMI Tracker Pro - Schermata principale e analisi progressi" class="showcase-img">
+    <div class="showcase-glow"></div>
+    <div class="showcase-badge">✨ App reale — nessun mock</div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-item">
+    <div class="stat-number">100%</div>
+    <div class="stat-label">Gratuito</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">0</div>
+    <div class="stat-label">Pubblicità</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">∞</div>
+    <div class="stat-label">Misurazioni</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">100%</div>
+    <div class="stat-label">Offline &amp; Privato</div>
+  </div>
+</div>
+
+<!-- FUNZIONALITÀ -->
+<section id="funzionalita">
+  <div class="section-label">Funzionalità</div>
+  <h2 class="section-title">Tutto quello che ti serve,<br>niente di superfluo</h2>
+  <p class="section-sub">Progettata per essere semplice da usare ma completa in ogni aspetto del monitoraggio della salute.</p>
+
+  <div class="features-grid">
+    <div class="feature-card" style="--accent: var(--green)">
+      <span class="feature-icon">⚖️</span>
+      <div class="feature-title">Calcolo BMI preciso</div>
+      <div class="feature-desc">Inserisci peso e altezza, ottieni il tuo BMI istantaneamente con la classificazione (sottopeso, normopeso, sovrappeso, obeso) e il colore corrispondente.</div>
+    </div>
+    <div class="feature-card" style="--accent: #40C4FF">
+      <span class="feature-icon">📈</span>
+      <div class="feature-title">Storico e grafici</div>
+      <div class="feature-desc">Ogni misurazione viene salvata e visualizzata in un grafico interattivo. Vedi l'andamento nel tempo e individua i tuoi progressi reali.</div>
+    </div>
+    <div class="feature-card" style="--accent: #FFB300">
+      <span class="feature-icon">🎯</span>
+      <div class="feature-title">Obiettivo di peso</div>
+      <div class="feature-desc">Imposta il tuo peso target. L'app mostra sempre quanti kg mancano all'obiettivo e aggiorna il progresso dopo ogni misurazione.</div>
+    </div>
+    <div class="feature-card" style="--accent: #FF5252">
+      <span class="feature-icon">🔔</span>
+      <div class="feature-title">Promemoria intelligenti</div>
+      <div class="feature-desc">Attiva una notifica giornaliera o settimanale per non dimenticare di pesarti. Scegli il giorno e l'orario più comodi per te.</div>
+    </div>
+    <div class="feature-card" style="--accent: #CE93D8">
+      <span class="feature-icon">🍽️</span>
+      <div class="feature-title">Fabbisogno calorico (TDEE)</div>
+      <div class="feature-desc">Calcola automaticamente le calorie giornaliere necessarie in base al tuo livello di attività fisica. Utile per chi segue una dieta.</div>
+    </div>
+    <div class="feature-card" style="--accent: var(--green)">
+      <span class="feature-icon">📊</span>
+      <div class="feature-title">Schermata statistiche</div>
+      <div class="feature-desc">Analisi completa: media BMI, variazione nel tempo, migliore e peggiore risultato, calendar mensile con i giorni di misurazione.</div>
+    </div>
+  </div>
+</section>
+
+<!-- COME FUNZIONA -->
+<section style="padding-top: 0">
+  <div class="section-label">Come funziona</div>
+  <h2 class="section-title">In tre passi</h2>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <span class="step-icon">📝</span>
+      <div class="step-title">Inserisci i tuoi dati</div>
+      <div class="step-desc">Altezza, età, sesso e livello di attività. Salvati una volta sola, non li reinserisci mai più.</div>
+    </div>
+    <div class="step">
+      <span class="step-num">2</span>
+      <span class="step-icon">⚖️</span>
+      <div class="step-title">Pesa e calcola</div>
+      <div class="step-desc">Inserisci il peso del giorno e premi "Calcola e Salva". Il BMI viene registrato nello storico automaticamente.</div>
+    </div>
+    <div class="step">
+      <span class="step-num">3</span>
+      <span class="step-icon">📈</span>
+      <div class="step-title">Monitora i progressi</div>
+      <div class="step-desc">Guarda il grafico crescere, tieni d'occhio l'obiettivo e festeggia ogni traguardo raggiunto.</div>
+    </div>
+  </div>
+</section>
+
+<!-- BACKUP -->
+<section style="padding-top: 0">
+  <div class="section-label">I tuoi dati sono al sicuro</div>
+  <h2 class="section-title">Backup senza account,<br>senza complicazioni</h2>
+  <p class="section-sub">Esporta tutto in un file JSON e salvalo dove vuoi. Nessun cloud obbligatorio, nessun abbonamento.</p>
+
+  <div class="backup-grid">
+    <div class="backup-card">
+      <div class="backup-icon">💾</div>
+      <div>
+        <div class="backup-title">Esporta backup</div>
+        <div class="backup-desc">Salva tutte le misurazioni e l'obiettivo su Google Drive, Dropbox, WhatsApp o memoria del telefono.</div>
+      </div>
+    </div>
+    <div class="backup-card">
+      <div class="backup-icon">📥</div>
+      <div>
+        <div class="backup-title">Importa dati</div>
+        <div class="backup-desc">Cambi telefono? Seleziona il file di backup e recuperi tutto in un secondo, obiettivo incluso.</div>
+      </div>
+    </div>
+    <div class="backup-card">
+      <div class="backup-icon">📄</div>
+      <div>
+        <div class="backup-title">Esporta CSV o PDF</div>
+        <div class="backup-desc">Genera un report del tuo storico in formato CSV per Excel o PDF da mostrare al tuo medico o nutrizionista.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section id="download" style="padding-top: 0">
+  <div class="section-label">Download</div>
+  <h2 class="section-title">Scarica e installa<br>in 3 minuti</h2>
+  <p class="section-sub">L'app non è sul Play Store — si installa manualmente dal file APK. È semplicissimo, segui i passi qui sotto.</p>
+
+  <div class="install-steps">
+    <div class="install-step">
+      <div class="install-num">1</div>
+      <div class="install-text">Clicca il bottone qui sotto e scarica il file <strong>bmi-tracker-pro.apk</strong> sul tuo Android.</div>
+    </div>
+    <div class="install-step">
+      <div class="install-num">2</div>
+      <div class="install-text">Vai nelle <strong>Impostazioni → Sicurezza</strong> del tuo telefono e abilita <strong>"Origini sconosciute"</strong> (o "Installa app sconosciute").</div>
+    </div>
+    <div class="install-step">
+      <div class="install-num">3</div>
+      <div class="install-text">Apri il file APK scaricato dal gestore file o dalle notifiche e premi <strong>Installa</strong>. Fatto!</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 40px;">
+    <a href="bmi-tracker-pro.apk" class="btn-primary" download>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v5h5.66V9h3.84L12 2z"/></svg>
+      Scarica BMI Tracker Pro
+    </a>
+  </div>
+
+  <div class="disclaimer">
+    <strong>⚠️ Attenzione medica:</strong> il BMI è uno strumento indicativo e non sostituisce il parere di un medico o nutrizionista. Per una valutazione completa della tua salute rivolgiti sempre a un professionista.
+  </div>
+</section>
+
+<!-- SUPPORT -->
+<div class="support-section">
+  <div class="section-label">Supporta il progetto</div>
+  <h2 class="section-title">Ti piace l'app?</h2>
+  <p class="support-sub">BMI Tracker Pro è completamente gratuita. Se la trovi utile, offrirmi un caffè aiuta a mantenerla e migliorarla. Grazie! ☕</p>
+  <div class="support-btns">
+    <a href="https://web.satispay.com/download/qrcode/S6Y-CON--B6C4920C-6EAD-4DA0-99FC-85E57AE25DD6?locale=it" target="_blank" class="btn-satispay">
+      ❤️ Offri un caffè con Satispay
+    </a>
+    <a href="https://paypal.me/DenAlex" target="_blank" class="btn-paypal">
+      💙 Offri un caffè con PayPal
+    </a>
+  </div>
+</div>
+
+<!-- CTA FINALE -->
+<div class="cta-section">
+  <div class="cta-glow"></div>
+  <h2 class="section-title">Inizia oggi.<br><em style="color:var(--green); font-family:'DM Serif Display',serif; font-style:italic;">È gratis.</em></h2>
+  <p class="section-sub">Nessun account, nessuna pubblicità, nessun abbonamento. Solo il tuo percorso di salute, tutto nel tuo telefono.</p>
+  <a href="bmi-tracker-pro.apk" class="btn-primary" download>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v5h5.66V9h3.84L12 2z"/></svg>
+    Scarica gratis per Android
+  </a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>BMI Tracker Pro · Sviluppato con ❤️ da Alex · 
+    <a href="https://paypal.me/DenAlex" target="_blank">Supporta il progetto</a>
+  </p>
+  <p style="margin-top: 8px; font-size:0.75rem;">
+    L'app è fornita "così com'è" a scopo informativo. Non sostituisce il parere medico professionale.
+  </p>
+</footer>
+
+</body>
+</html>
